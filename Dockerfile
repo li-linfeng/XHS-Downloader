@@ -14,6 +14,3 @@ RUN pip install --no-cache-dir -r /app/requirements.txt -i https://pypi.tuna.tsi
 VOLUME /app
 
 EXPOSE 8000
-docker-compose run --rm certbot certonly --webroot -w /var/www/certbot -d wx.yoosoul.com --email 180132725012163.com --agree-tos  --non-interactive
-docker-compose run --rm certbot certonly --webroot -w /var/www/certbot -d yourdomain.com --email your-email@example.com --agree-tos --non-interactive
-0 2 * * * /www/docker-env/scripts/renew_certs.sh
