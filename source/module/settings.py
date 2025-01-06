@@ -29,7 +29,7 @@ class Settings:
         "download_record": True,
         "language": "zh_CN",
     }
-    encode = "UTF-8-SIG" if system() == "Windows" else "UTF-8"
+    encode = "UTF-8-SIG"
 
     def __init__(self, root: Path = ROOT):
         self.file = root.joinpath("./settings.json")
