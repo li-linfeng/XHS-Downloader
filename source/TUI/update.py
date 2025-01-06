@@ -1,3 +1,4 @@
+from rich.text import Text
 from textual import work
 from textual.app import ComposeResult
 from textual.containers import Grid
@@ -7,6 +8,9 @@ from textual.widgets import LoadingIndicator
 
 from ..application import XHS
 from ..module import (
+    ERROR,
+    WARNING,
+    INFO,
     RELEASES,
 )
 from ..translation import _
@@ -26,40 +30,29 @@ class Update(ModalScreen):
             classes="loading",
         )
 
-    @work(exclusive=True)
+    @work()
     async def check_update(self) -> None:
         try:
             url = await self.xhs.html.request_url(RELEASES, False, None, timeout=5, )
             version = url.split("/")[-1]
-            match self.compare_versions(f"{XHS.VERSION_MAJOR}.{XHS.VERSION_MINOR}", version, XHS.VERSION_BETA):
-                case 4:
-                    args = (
-                        _("检测到新版本：{0}.{1}").format(
-                            XHS.VERSION_MAJOR,
-                            XHS.VERSION_MINOR,
-                        ),
-                        "warning",
-                    )
-                case 3:
-                    args = (
-                        _("当前版本为开发版, 可更新至正式版"),
-                        "warning",
-                    )
-                case 2:
-                    args = (
-                        _("当前已是最新开发版"),
-                        "warning",
-                    )
+            match self.compare_versions(f'{XHS.VERSION_MAJOR}.{XHS.VERSION_MINOR}', version, XHS.VERSION_BETA):
                 case 1:
-                    args = (
+                    tip = Text(_(f'检测到新版本：{version}') + f'\n{RELEASES}', style=WARNING)
+                case 2:
+                    tip = Text(_(f'当前版本为开发版, 可更新至正式版') + f'\n{RELEASES}', style=WARNING)
+                case 3:
+                    tip = Text(
+                        _("当前已是最新开发版"),
+                        style=WARNING)
+                case 4:
+                    tip = Text(
                         _("当前已是最新正式版"),
-                        "information",
-                    )
+                        style=INFO)
                 case _:
                     raise ValueError
         except ValueError:
-            args = (_("检测新版本失败"), "error",)
-        self.dismiss(args)
+            tip = Text(_("检测新版本失败"), style=ERROR)
+        self.dismiss(tip)
 
     def on_mount(self) -> None:
         self.check_update()

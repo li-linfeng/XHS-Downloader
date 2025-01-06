@@ -30,10 +30,7 @@ class Record(ModalScreen):
         )
 
     async def delete(self, text: str):
-        text = await self.xhs.extract_links(text, None, )
-        text = self.xhs.extract_id(text)
         await self.xhs.id_recorder.delete(text)
-        self.app.notify(_("删除下载记录成功"))
 
     @on(Button.Pressed, "#enter")
     async def save_settings(self):

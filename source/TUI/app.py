@@ -44,7 +44,6 @@ class XHSDownloader(App):
         )
 
     async def on_mount(self) -> None:
-        self.theme = "nord"
         self.install_screen(
             Setting(
                 self.parameter,
@@ -59,10 +58,7 @@ class XHSDownloader(App):
             self.parameter,
             logging,
             self.query_one(RichLog),
-            _("配置文件 settings.json 缺少必要的参数，请删除该文件，然后重新运行程序，自动生成默认配置文件！") +
-            f"\n{
-            ">" *
-            50}",
+            _("配置文件 settings.json 缺少必要的参数，请删除该文件，然后重新运行程序，自动生成默认配置文件！") + "\n" + (">" * 50),
             ERROR,
         )
 
@@ -74,7 +70,7 @@ class XHSDownloader(App):
         await self.push_screen("setting", save_settings)
 
     async def refresh_screen(self):
-        await self.action_back()
+        self.pop_screen()
         await self.close_database()
         await self.APP.close()
         self.__initialization()
@@ -95,11 +91,17 @@ class XHSDownloader(App):
         self.install_screen(Record(self.APP, ), name="record")
         await self.push_screen("index")
 
-    def update_result(self, args: tuple[str, str]) -> None:
-        self.notify(args[0], severity=args[1], )
+    def update_result(self, tip: str) -> None:
+        log = self.query_one(RichLog)
+        log.write(tip)
+        log.write(">" * 50)
 
-    async def action_update(self):
+    async def action_check_update(self):
         await self.push_screen(Update(self.APP, ), callback=self.update_result)
+
+    async def action_update_and_return(self):
+        await self.push_screen("index")
+        await self.action_check_update()
 
     async def close_database(self):
         await self.APP.id_recorder.cursor.close()

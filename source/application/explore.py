@@ -43,11 +43,28 @@ class Explore:
 
     def __extract_info(self, container: dict, data: Namespace):
         container["作品ID"] = data.safe_extract("noteId")
-        container["作品链接"] = f"https://www.xiaohongshu.com/explore/{container["作品ID"]}"
+        container["作品链接"] = f'https://www.xiaohongshu.com/explore/{container["作品ID"]}'
         container["作品标题"] = data.safe_extract("title")
         container["作品描述"] = data.safe_extract("desc")
         container["作品类型"] = self.explore_type.get(
             data.safe_extract("type"), _("未知"))
+        # 如果是视频类型，添加视频封面
+        if container["作品类型"] == _("视频"):
+            # 从转换器提供的video_poster字段获取封面URL
+            cover_url = data.safe_extract("video_poster")
+            if not cover_url:
+                # 如果没有video_poster，尝试其他可能的路径
+                cover_url = (
+                    data.safe_extract("video.media.stream.coverUrl") or
+                    data.safe_extract("video.cover.url") or
+                    data.safe_extract("imageList[0].urlDefault") or
+                    data.safe_extract("imageList[0].url") or
+                    ""
+                )
+                # 确保URL是完整的
+                if cover_url and not cover_url.startswith(("http://", "https://")):
+                    cover_url = f"https://sns-webpic-qc.xhscdn.com/{cover_url}"
+            container["视频封面"] = cover_url
         # container["IP归属地"] = data.safe_extract("ipLocation")
 
     def __extract_time(self, container: dict, data: Namespace):
@@ -66,5 +83,4 @@ class Explore:
     def __extract_user(container: dict, data: Namespace):
         container["作者昵称"] = data.safe_extract("user.nickname")
         container["作者ID"] = data.safe_extract("user.userId")
-        container["作者链接"] = f"https://www.xiaohongshu.com/user/profile/{
-        container["作者ID"]}"
+        container["作者链接"] = f'https://www.xiaohongshu.com/user/profile/{container["作者ID"]}'

@@ -1,0 +1,33 @@
+# Python虚拟环境
+.venv/
+venv/
+ENV/
+
+# Python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 分发/打包
+dist/
+build/
+*.egg-info/
+
+# IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 本地测试文件
+*.log
+first_frame.jpg
+first_frame_ffmpeg.jpg
+first_frame_ffmpeg_fast.jpg
+frame_base64.txt
+frame_base64_ffmpeg.txt
+frame_base64_ffmpeg_fast.txt
+
+# 系统文件
+.DS_Store
+Thumbs.db 

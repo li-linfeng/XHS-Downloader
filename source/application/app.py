@@ -66,7 +66,6 @@ class XHS:
     LINK = compile(r"https?://www\.xiaohongshu\.com/explore/\S+")
     SHARE = compile(r"https?://www\.xiaohongshu\.com/discovery/item/\S+")
     SHORT = compile(r"https?://xhslink\.com/\S+")
-    ID = compile(r"(?:explore|item)/(\S+)?\?")
     __INSTANCE = None
     CLEANER = Cleaner()
 
@@ -140,8 +139,9 @@ class XHS:
             data, self.manager.image_format)
 
     def __extract_video(self, container: dict, data: Namespace):
-        container["下载地址"] = self.video.get_video_link(data)
-        container["动图地址"] = [None, ]
+        video_urls = self.video.get_video_link(data)
+        container["下载地址"] = video_urls
+        container["动图地址"] = [None]
 
     async def __download_files(
             self,
@@ -192,7 +192,7 @@ class XHS:
             data=True,
     ) -> list[dict]:
         # return  # 调试代码
-        urls = await self.extract_links(url, log)
+        urls = await self.__extract_links(url, log)
         if not urls:
             logging(log, _("提取小红书作品链接失败"), WARNING)
         else:
@@ -210,13 +210,13 @@ class XHS:
             bar=None,
             data=False,
     ) -> None:
-        url = await self.extract_links(url, log)
+        url = await self.__extract_links(url, log)
         if not url:
             logging(log, _("提取小红书作品链接失败"), WARNING)
         else:
             await self.__deal_extract(url[0], download, index, log, bar, data, )
 
-    async def extract_links(self, url: str, log) -> list:
+    async def __extract_links(self, url: str, log) -> list:
         urls = []
         for i in url.split():
             if u := self.SHORT.search(i):
@@ -230,13 +230,6 @@ class XHS:
             elif u := self.LINK.search(i):
                 urls.append(u.group())
         return urls
-
-    def extract_id(self, links: list[str]) -> list[str]:
-        ids = []
-        for i in links:
-            if j := self.ID.search(i):
-                ids.append(j.group(1))
-        return ids
 
     async def __deal_extract(
             self,
@@ -259,10 +252,10 @@ class XHS:
             logging(log, _("{0} 获取数据失败").format(i), ERROR)
             return {}
         data = self.explore.run(namespace)
-        # logging(log, data)  # 调试代码
         if not data:
             logging(log, _("{0} 提取数据失败").format(i), ERROR)
             return {}
+        
         if data["作品类型"] == _("视频"):
             self.__extract_video(data, namespace)
         elif data["作品类型"] == _("图文"):
@@ -343,7 +336,7 @@ class XHS:
                 self.stop_monitor()
             elif t != self.clipboard_cache:
                 self.clipboard_cache = t
-                [await self.queue.put(i) for i in await self.extract_links(t, None)]
+                [await self.queue.put(i) for i in await self.__extract_links(t, None)]
             await sleep(delay)
 
     async def __receive_link(self, delay: int, *args, **kwargs):
@@ -447,7 +440,7 @@ class XHS:
 
         @self.server.post("/xhs/", response_model=ExtractData, )
         async def handle(extract: ExtractParams):
-            url = await self.extract_links(extract.url, None)
+            url = await self.__extract_links(extract.url, None)
             if not url:
                 msg = _("提取小红书作品链接失败")
                 data = None

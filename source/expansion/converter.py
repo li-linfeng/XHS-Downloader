@@ -14,11 +14,33 @@ class Converter:
         "[-1]",
         "note",
     )
+    
+    # 添加视频封面的路径
+    KEYS_VIDEO_POSTER = (
+        "note",
+        "noteDetailMap",
+        "[-1]",
+        "note",
+        "video",
+        "media",
+        "stream",
+        "coverUrl",
+    )
+    
+    # 添加备用视频封面路径
+    KEYS_VIDEO_POSTER_ALT = (
+        "note",
+        "noteDetailMap",
+        "[-1]",
+        "note",
+        "video",
+        "cover",
+        "url",
+    )
 
     def run(self, content: str) -> dict:
-        return self._filter_object(
-            self._convert_object(
-                self._extract_object(content)))
+        data = self._convert_object(self._extract_object(content))
+        return self._filter_object(data)
 
     def _extract_object(self, html: str) -> str:
         if not html:
@@ -33,7 +55,18 @@ class Converter:
 
     @classmethod
     def _filter_object(cls, data: dict) -> dict:
-        return cls.deep_get(data, cls.KEYS_LINK) or {}
+        result = cls.deep_get(data, cls.KEYS_LINK) or {}
+        if result and result.get("type") == "video":
+            # 如果是视频类型，尝试多个路径获取视频封面
+            video_poster = (
+                cls.deep_get(data, cls.KEYS_VIDEO_POSTER) or
+                cls.deep_get(data, cls.KEYS_VIDEO_POSTER_ALT)
+            )
+            if video_poster:
+                if not video_poster.startswith(("http://", "https://")):
+                    video_poster = f"https://sns-webpic-qc.xhscdn.com/{video_poster}"
+                result["video_poster"] = video_poster
+        return result
 
     @classmethod
     def deep_get(cls, data: dict, keys: list | tuple, default=None):

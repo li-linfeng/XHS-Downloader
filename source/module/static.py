@@ -2,10 +2,9 @@ from pathlib import Path
 
 VERSION_MAJOR = 2
 VERSION_MINOR = 4
-VERSION_BETA = False
+VERSION_BETA = True
 ROOT = Path(__file__).resolve().parent.parent.parent
-PROJECT = f"XHS-Downloader V{VERSION_MAJOR}.{
-VERSION_MINOR}{" Beta" if VERSION_BETA else ""}"
+PROJECT = f'XHS-Downloader V{VERSION_MAJOR}.{VERSION_MINOR}{" Beta" if VERSION_BETA else ""}'
 
 REPOSITORY = "https://github.com/JoeanAmier/XHS-Downloader"
 LICENCE = "GNU General Public License v3.0"
@@ -13,14 +12,14 @@ RELEASES = "https://github.com/JoeanAmier/XHS-Downloader/releases/latest"
 
 USERSCRIPT = "https://raw.githubusercontent.com/JoeanAmier/XHS-Downloader/master/static/XHS-Downloader.js"
 
-USERAGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 "
-             "Safari/537.36")
+USERAGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 '
+             'Safari/537.36 Edg/128.0.0.0')
 
 HEADERS = {
-    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,"
-              "application/signed-exchange;v=b3;q=0.7",
-    "referer": "https://www.xiaohongshu.com/explore",
-    "user-agent": USERAGENT,
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'cache-control': 'no-cache',
+    'pragma': 'no-cache',
+    'user-agent': USERAGENT,
 }
 
 MASTER = "b #fff200"

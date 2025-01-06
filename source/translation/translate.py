@@ -1,5 +1,4 @@
 from gettext import translation
-from locale import getlocale
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -20,15 +19,7 @@ class TranslationManager:
         if not localedir:
             localedir = ROOT.joinpath('locale')
         self.localedir = Path(localedir)
-        self.current_translator = self.setup_translation(
-            self.get_language_code(),
-        )
-
-    @staticmethod
-    def get_language_code() -> str:
-        # 获取当前系统的语言和区域设置
-        language_code, __ = getlocale()
-        return "zh_CN" if "Chinese" in language_code else "en_US"
+        self.current_translator = self.setup_translation()
 
     def setup_translation(self, language: str = "zh_CN"):
         """设置gettext翻译环境"""
@@ -40,8 +31,7 @@ class TranslationManager:
                 fallback=True,
             )
         except FileNotFoundError as e:
-            print(
-                f"Warning: Translation files for '{self.domain}' not found. Error: {e}")
+            print(f"Warning: Translation files for '{self.domain}' not found. Error: {e}")
             return translation(self.domain, fallback=True)
 
     def switch_language(self, language: str = "en_US"):
